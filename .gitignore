@@ -1,0 +1,6 @@
+.idea/
+cover.*
+go-astibank
+test
+resources.go
+vendor
