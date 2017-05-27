@@ -38,6 +38,7 @@ func NewData(baseDirPath string) (d *Data, err error) {
 		err = errors.Wrapf(err, "stating %s failed", d.path)
 		return
 	}
+	defer f.Close()
 
 	// Decode data
 	astilog.Debugf("Importing data from %s", d.path)
@@ -68,6 +69,7 @@ func (d *Data) Close() (err error) {
 		err = errors.Wrapf(err, "creating %s failed", d.path)
 		return
 	}
+	defer f.Close()
 
 	// Build data
 	var ass []AccountStored

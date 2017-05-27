@@ -1,62 +1,22 @@
 package main
 
 import (
-	"encoding/json"
-	"net/http"
-
 	"bytes"
-	"io/ioutil"
-
-	"fmt"
-
 	"encoding/csv"
-
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strconv"
-
 	"strings"
-
 	"time"
+
+	"path/filepath"
 
 	"github.com/asticode/go-astilog"
 	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 )
-
-// Vars
-var (
-	bytesLineSeparator = []byte("\r\n")
-)
-
-// adaptRouter adapts the router
-func adaptRouter(r *httprouter.Router) {
-	r.POST("/api/import", handleAPIImport)
-	r.POST("/api/operations", handleAPIAddOperation)
-}
-
-// BodyOperations represents a body containing operations
-type BodyOperations struct {
-	Operations []BodyOperation `json:"operations"`
-}
-
-// BodyOperation represents a body containing an operation
-type BodyOperation struct {
-	Account   *Account   `json:"account"`
-	Operation *Operation `json:"operation"`
-}
-
-// BodyPaths represents a body containing a list of paths
-type BodyPaths struct {
-	Paths []string `json:"paths"`
-}
-
-// processErrors processes errors
-func processErrors(rw http.ResponseWriter, err *error) {
-	if *err != nil {
-		astilog.Error(*err)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write([]byte(errors.Cause(*err).Error()))
-	}
-}
 
 // handleAPIImport handles the /api/import POST request
 func handleAPIImport(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -85,10 +45,9 @@ func handleAPIImport(rw http.ResponseWriter, r *http.Request, p httprouter.Param
 		// Set account
 		a = data.Accounts.Set(a)
 
-		// Loop through operations
+		// Add new operations
 		for _, op := range ops {
-			// Operation is new
-			if _, err = a.Operations.One(op.ID()); err != nil {
+			if _, err = a.Operations.One(op.ID); err != nil {
 				bo.Operations = append(bo.Operations, BodyOperation{Account: a, Operation: op})
 			}
 		}
@@ -105,6 +64,12 @@ func handleAPIImport(rw http.ResponseWriter, r *http.Request, p httprouter.Param
 func parseBankStatement(path string) (a *Account, ops []*Operation, err error) {
 	// Log
 	astilog.Debugf("Parsing bank statement %s", path)
+
+	// Check file extension
+	if filepath.Ext(path) != ".csv" {
+		err = fmt.Errorf("invalid extension for %s", path)
+		return
+	}
 
 	// Open file
 	var b []byte
@@ -138,8 +103,8 @@ func parseBankStatement(path string) (a *Account, ops []*Operation, err error) {
 
 	// Parse account fields
 	a = newAccount()
-	a.ID = lines[0][1]
-	if a.RawBalance, err = strconv.ParseFloat(strings.Replace(lines[4][1], ",", ".", -1), 64); err != nil {
+	a.ID = fmt.Sprintf("%s %s", lines[1][1], lines[0][1])
+	if a.Balance, err = strconv.ParseFloat(strings.Replace(lines[4][1], ",", ".", -1), 64); err != nil {
 		err = fmt.Errorf("%s is not a valid float", lines[4][1])
 		return
 	}
@@ -173,33 +138,14 @@ func parseBankStatement(path string) (a *Account, ops []*Operation, err error) {
 			return
 		}
 
+		// Update account balance
+		a.Balance -= op.Amount
+
+		// Set ID
+		op.ID = fmt.Sprintf("%s.%s.%f", op.Date, op.RawLabel, op.Amount)
+
 		// Add operation
 		ops = append(ops, op)
 	}
 	return
-}
-
-// handleAPIAddOperation handles the /api/operations POST request
-func handleAPIAddOperation(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	// Process errors
-	var err error
-	defer processErrors(rw, &err)
-
-	// Decode input
-	var bo BodyOperation
-	if err = json.NewDecoder(r.Body).Decode(&bo); err != nil {
-		err = errors.Wrap(err, "decoding input failed")
-		return
-	}
-
-	// Fetch account
-	var a *Account
-	if a, err = data.Accounts.One(bo.Account.ID); err != nil {
-		err = errors.Wrapf(err, "fetching account %s failed", bo.Account.ID)
-		return
-	}
-
-	// Add operation
-	a.Operations.Add(bo.Operation)
-	rw.WriteHeader(http.StatusNoContent)
 }

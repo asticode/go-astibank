@@ -7,7 +7,6 @@ type Account struct {
 	Balance    float64        `json:"balance"`
 	ID         string         `json:"id"`
 	Operations *OperationPool `json:"-"`
-	RawBalance float64        `json:"raw_balance"`
 	UpdatedAt  time.Time      `json:"updated_at"`
 }
 

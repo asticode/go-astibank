@@ -51,8 +51,6 @@ func (p *accountPool) Set(a *Account) *Account {
 		p.accountsByID[a.ID] = a
 		p.orderedIDs = append(p.orderedIDs, a.ID)
 		sort.Strings(p.orderedIDs)
-	} else {
-		p.accountsByID[a.ID].RawBalance = a.RawBalance
 	}
 	return p.accountsByID[a.ID]
 }

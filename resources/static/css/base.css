@@ -6,7 +6,7 @@ html, body {
     background-color: #333;
     color: #fff;
     font-family: sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     height: 100%;
     margin: 0;
     padding: 0;
@@ -22,23 +22,20 @@ button {
     border-radius: 4px;
     cursor: pointer;
     display: inline-block;
-    font-size: 14px;
     font-weight: 400;
+    font-size: 1em;
     line-height: 1.42857;
     margin-bottom: 0;
-    padding: 6px 12px;
+    padding: 10px 12px;
     text-align: center;
     vertical-align: middle;
     white-space: nowrap;
     color: #ffffff;
+    width: 200px;
 }
 
 .btn-lg {
     width: 100%;
-}
-
-.btn-sm {
-    width:200px;
 }
 
 .btn-danger {
@@ -53,22 +50,12 @@ button {
     border-color: #3e8f3e;
 }
 
-.wrapper {
-    padding: 0.5em;
-    width: 100%;
-}
-
-.header {
-    height: 3em;
-    text-align: center;
-}
-
 label {
     display: block;
-    margin-bottom: 0.3em;
+    margin-bottom: 2px;
 }
 
-input[type="text"], textarea {
+input[type="text"], textarea, select {
     background-color: #fff;
     background-image: none;
     border: 1px solid #ccc;
@@ -76,10 +63,24 @@ input[type="text"], textarea {
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
     color: #555;
     display: block;
-    font-size: 14px;
+    font-size: 1em;
     height: 34px;
     line-height: 1.42857;
-    margin-bottom: 0.3em;
-    padding: 6px 12px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    width: 100%;
+}
+
+h3 {
+    border-bottom: solid 1px #333;
+    font-size: 1em;
+    font-weight: normal;
+    margin: 0 0 15px 0;
+    padding: 0;
+    width: 100%;
+}
+
+.wrapper {
+    padding: 20px;
     width: 100%;
 }

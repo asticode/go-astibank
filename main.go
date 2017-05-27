@@ -13,7 +13,10 @@ import (
 )
 
 // Vars
-var data *Data
+var (
+	data  *Data
+	debug = flag.Bool("d", false, "debug")
+)
 
 //go:generate go-bindata -pkg $GOPACKAGE -o resources.go resources/...
 func main() {
@@ -41,6 +44,7 @@ func main() {
 		AstilectronOptions: astilectron.Options{
 			AppName: "Astibank",
 		},
+		Debug:    *debug,
 		Homepage: "/templates/index",
 		// RestoreAssets: RestoreAssets,
 		WindowOptions: &astilectron.WindowOptions{

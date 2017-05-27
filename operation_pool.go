@@ -24,11 +24,11 @@ func newOperationPool() *OperationPool {
 func (p *OperationPool) Add(op *Operation) *Operation {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
-	if _, ok := p.OperationsByID[op.ID()]; !ok {
-		p.OperationsByID[op.ID()] = op
-		p.OrderedIDs = append(p.OrderedIDs, op.ID())
+	if _, ok := p.OperationsByID[op.ID]; !ok {
+		p.OperationsByID[op.ID] = op
+		p.OrderedIDs = append(p.OrderedIDs, op.ID)
 	}
-	return p.OperationsByID[op.ID()]
+	return p.OperationsByID[op.ID]
 }
 
 // All returns the operations
