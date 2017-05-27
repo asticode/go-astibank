@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/css/base.css"/>
+    <link rel="stylesheet" href="/static/lib/astiloader/astiloader.css"/>
+    <link rel="stylesheet" href="/static/lib/astimodaler/astimodaler.css"/>
+    <link rel="stylesheet" href="/static/lib/astinotifier/astinotifier.css"/>
+    <link rel="stylesheet" href="/static/lib/font-awesome/css/font-awesome.min.css">
+</head>
+<body>
+<div class="wrapper header">
+    <button id="btn-import" class="btn-sm btn-success">Import</button>
+</div>
+<script src="/static/lib/astiloader/astiloader.js"></script>
+<script src="/static/lib/astimodaler/astimodaler.js"></script>
+<script src="/static/lib/astinotifier/astinotifier.js"></script>
+<script src="/static/lib/chart/chart.min.js"></script>
+<script>
+    asticode.loader.init();
+    asticode.modaler.init();
+    asticode.notifier.init();
+    document.addEventListener('astilectron-ready', function() {
+        document.getElementById("btn-import").onclick = function() {
+            astilectron.showOpenDialog({properties: ['openFile', 'multiSelections']}, function(paths) {
+                // Send request to /api/import
+                asticode.loader.show();
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function(event) {
+                    if (this.readyState === XMLHttpRequest.DONE) {
+                        // Hide loader
+                        asticode.loader.hide()
+
+                        // Process errors
+                        if (req.status != 200) {
+                            asticode.notifier.error(req.responseText);
+                            return
+                        }
+
+                        // No new operations detected
+                        var json = JSON.parse(req.responseText);
+                        if (json.operations.length == 0) {
+                            // TODO
+                            return
+                        }
+
+                        // Build modal content
+                        var buildModalContent = function() {
+                            var content = document.createElement("div");
+                            content.innerHTML = `
+                            <label>Date: ` + json.operations[0].operation.date + `</label>
+                            <label>Raw label: ` + json.operations[0].operation.raw_label + `</label>
+                            <label>Amount: ` + json.operations[0].operation.amount + `€</label>
+                            <label>Label:</label>
+                            <input type="text" id="content-label"/>
+                            <label>Category:</label>
+                            <input type="text" id="content-category" style="margin-bottom: 1em"/>
+                            `;
+                            content.style.textAlign = "left";
+                            var btn = document.createElement("button");
+                            btn.innerText = "Add";
+                            btn.className = "btn-lg btn-success";
+                            btn.onclick = function() {
+                                // Get values
+                                var label = document.getElementById("content-label").value;
+                                var category = document.getElementById("content-category").value;
+
+                                // Send request to /api/operations
+                                asticode.loader.show();
+                                const req = new XMLHttpRequest();
+                                req.onreadystatechange = function(event) {
+                                    if (this.readyState === XMLHttpRequest.DONE) {
+                                        // Hide loader
+                                        asticode.loader.hide()
+
+                                        // Process errors
+                                        if (req.status != 204) {
+                                            asticode.notifier.error(req.responseText);
+                                            return
+                                        }
+
+                                        // Remove first operation
+                                        json.operations.shift();
+
+                                        // No operations left
+                                        if (json.operations.length == 0) {
+                                            asticode.modaler.close();
+                                            return
+                                        }
+
+                                        // Build modal content
+                                        buildModalContent();
+                                    }
+                                };
+                                req.open('POST', '/api/operations', true);
+                                var operation = json.operations[0].operation;
+                                operation.label = label;
+                                operation.category = category;
+                                req.send(JSON.stringify({account: json.operations[0].account, operation: operation}));
+                            };
+                            content.appendChild(btn)
+
+                            // Open modal
+                            asticode.modaler.open(content);
+                        };
+                        buildModalContent();
+                    }
+                };
+                req.open('POST', '/api/import', true);
+                req.send(JSON.stringify({paths: paths}));
+            })
+        }
+    })
+</script>
+</body>
+</html>

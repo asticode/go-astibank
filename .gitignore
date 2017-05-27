@@ -1,5 +1,6 @@
 .idea/
 cover.*
+data.bin
 go-astibank
 test
 resources.go
