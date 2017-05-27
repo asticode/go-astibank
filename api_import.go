@@ -145,8 +145,31 @@ func parseBankStatement(path string) (a *Account, ops []*Operation, err error) {
 		// Set ID
 		op.ID = fmt.Sprintf("%s.%s.%f", op.Date, op.RawLabel, op.Amount)
 
+		// Parse raw label
+		op.Subject = parseRawLabel(op.RawLabel)
+		if c, ok := mappingSubjectToCategory[op.Subject]; ok {
+			op.Category = c
+		}
+		if l, ok := mappingSubjectToLabel[op.Subject]; ok {
+			op.Label = l
+		}
+
 		// Add operation
 		ops = append(ops, op)
+	}
+	return
+}
+
+// parseRawLabel parses a raw label
+func parseRawLabel(l string) (subject string) {
+	if strings.Index(l, "RETRAIT DAB LA BANQUE POSTALE") > -1 {
+		return subjectATMBanquePostale
+	} else if strings.Index(l, "PRELEVEMENT DE EDF clients") > -1 {
+		return subjectEDF
+	} else if strings.Index(l, " DECATHLON ") > -1 {
+		return subjectDecathlon
+	} else if strings.Index(l, " LES PRIMEURS ") > -1 {
+		return subjectLesPrimeurs
 	}
 	return
 }

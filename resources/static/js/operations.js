@@ -43,6 +43,7 @@ var operations = {
                         html += `
                         <tr>
                             <td class="operations-cell" style="text-align: center; width: 100px">` + operations[i].date.split("T")[0] + `</td>
+                            <td class="operations-cell" style="text-align: center; width: 200px">` + operations[i].subject + `</td>
                             <td class="operations-cell" style="text-align: center; width: 100px">` + operations[i].category + `</td>
                             <td class="operations-cell">` + operations[i].label + `</td>
                             <td class="operations-cell ` + className + `" style="text-align: right; width: 100px">` + operations[i].amount.toFixed(2) + `€</td>

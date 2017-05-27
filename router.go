@@ -19,6 +19,7 @@ func adaptRouter(r *httprouter.Router) {
 	r.POST("/api/accounts/:account_id/operations", handleAPIAddOperationToAccount)
 	r.GET("/api/accounts/:account_id/operations", handleAPIListOperationsOfAccount)
 	r.POST("/api/import", handleAPIImport)
+	r.GET("/api/references", handleAPIListReferences)
 }
 
 // BodyOperation represents a body containing an operation

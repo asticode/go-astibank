@@ -10,9 +10,30 @@ var index = {
             // Handle import
             document.getElementById("btn-import").onclick = index.onClickImport;
 
+            // Get references
+            index.getReferences();
+
             // Refresh list accounts
             index.refreshListAccounts();
         })
+    },
+    getReferences: function() {
+        // Send request to /api/references
+        const req = new XMLHttpRequest();
+        req.onreadystatechange = function(event) {
+            if (this.readyState === XMLHttpRequest.DONE) {
+                // Process errors
+                if (req.status != 200) {
+                    asticode.notifier.error(req.responseText);
+                    return
+                }
+
+                // Set references
+                index.references = JSON.parse(req.responseText);
+            }
+        };
+        req.open('GET', '/api/references', true);
+        req.send(null);
     },
     onClickAdd: function(originalLength, operations) {
         return function() {
@@ -143,8 +164,7 @@ var index = {
         btn.onclick = index.onClickAdd(originalLength, operations);
 
         // Build content
-        var content = document.createElement("div");
-        content.innerHTML = `
+        var html = `
         <div style="margin-bottom: 15px">
             <h3>Metadata</h3>
             <table style="width: 100%"><tbody>
@@ -168,21 +188,47 @@ var index = {
         </div>
         <div style="margin-bottom: 15px">
             <h3>Custom data</h3>
+            <label>Subject:</label>
+            <select id="content-subject">`;
+        for (var i = 0; i < index.references.subjects.length; i++) {
+            var selected = "";
+            if (index.references.subjects[i] == operations[0].operation.subject) {
+                selected = " selected"
+            }
+            html += `<option value="` + index.references.subjects[i] + `"` + selected + `>` + index.references.subjects[i] + `</option>`;
+        }
+        html += `</select>
+        <label>Category:</label>
+        <select id="content-category">`;
+        for (var i = 0; i < index.references.categories.length; i++) {
+            var selected = "";
+            if (index.references.categories[i] == operations[0].operation.category) {
+                selected = " selected"
+            }
+            html += `<option value="` + index.references.categories[i] + `"` + selected + `>` + index.references.categories[i] + `</option>`;
+        }
+        var label = "";
+        if (operations[0].operation.label != "") {
+            label = operations[0].operation.label;
+        }
+        html += `</select>
             <label>Label:</label>
-            <input type="text" id="content-label"/>
-            <label>Category:</label>
-            <select id="content-category" style="margin-bottom: 10px">
-                <option value="Food">Food</option>
-                <option value="Pleasure">Pleasure</option>
-                <option value="Rent">Rent</option>
-            </select>
+            <input type="text" id="content-label" autofocus value="` + label + `"/>
         </div>
         `;
+        var content = document.createElement("div");
+        content.innerHTML = html;
         content.style.textAlign = "left";
         content.appendChild(btn);
 
         // Update modal
         asticode.modaler.setContent(content);
+        document.getElementById('content-label').focus();
+        document.getElementById('content-label').onkeypress = function(e) {
+            if (e.keyCode == 13) {
+                btn.click();
+            }
+        };
         asticode.modaler.show();
     }
 };

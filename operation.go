@@ -12,4 +12,5 @@ type Operation struct {
 	ID       string    `json:"id"`
 	Label    string    `json:"label"`
 	RawLabel string    `json:"raw_label"`
+	Subject  string    `json:"subject"`
 }
