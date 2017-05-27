@@ -1,0 +1,15 @@
+.operations-container {
+    padding: 0 30px 30px 30px;
+    width: 100%;
+}
+
+.operations-table {
+    border-collapse:collapse;
+    width: 100%;
+}
+
+.operations-cell {
+    border: 1px solid rgba(160, 160, 160, 0.298);
+    padding: 10px;
+    text-align: left;
+}

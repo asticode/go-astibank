@@ -32,7 +32,7 @@ func handleAPIImport(rw http.ResponseWriter, r *http.Request, p httprouter.Param
 	}
 
 	// Loop in paths
-	var bo = BodyOperations{}
+	var bo = []BodyOperation{}
 	for _, p := range bp.Paths {
 		// Parse bank statement
 		var a *Account
@@ -44,11 +44,12 @@ func handleAPIImport(rw http.ResponseWriter, r *http.Request, p httprouter.Param
 
 		// Set account
 		a = data.Accounts.Set(a)
+		a.UpdatedAt = time.Now()
 
 		// Add new operations
 		for _, op := range ops {
 			if _, err = a.Operations.One(op.ID); err != nil {
-				bo.Operations = append(bo.Operations, BodyOperation{Account: a, Operation: op})
+				bo = append(bo, BodyOperation{Account: a, Operation: op})
 			}
 		}
 	}

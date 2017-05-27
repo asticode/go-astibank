@@ -1,3 +1,34 @@
 .header {
-    text-align: right;
+    text-align: center;
+}
+
+.account-container {
+    padding: 0 30px 30px 30px;
+    width: 100%;
+}
+
+.account-wrapper {
+    border: 1px solid rgba(160, 160, 160, 0.298);
+    border-radius: 4px;
+    width: 100%;
+}
+
+.account-table {
+    display: table;
+    width: 100%;
+}
+
+.account-cell {
+    display: table-cell;
+    padding: 30px;
+    text-align: center;
+    width: 33.3333333%;
+}
+
+.account-footer {
+    background-color: #444444;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+    width: 100%;
 }

@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/static/css/base.css"/>
-    <link rel="stylesheet" href="/static/css/index.css"/>
+    <link rel="stylesheet" href="/static/css/operations.css"/>
     <link rel="stylesheet" href="/static/lib/astiloader/astiloader.css"/>
-    <link rel="stylesheet" href="/static/lib/astimodaler/astimodaler.css"/>
     <link rel="stylesheet" href="/static/lib/astinotifier/astinotifier.css"/>
     <link rel="stylesheet" href="/static/lib/font-awesome/css/font-awesome.min.css">
 </head>
 <body>
 <div class="header">
-    <button id="btn-import" class="btn-success">Import</button>
+    <i class="fa fa-arrow-left" onclick="history.back()" style="cursor:pointer"></i>
 </div>
-<div id="accounts"></div>
+<div id="operations"></div>
 <script src="/static/lib/astiloader/astiloader.js"></script>
-<script src="/static/lib/astimodaler/astimodaler.js"></script>
 <script src="/static/lib/astinotifier/astinotifier.js"></script>
-<script src="/static/js/index.js"></script>
+<script src="/static/js/operations.js"></script>
 <script>
-    index.init();
+    operations.init();
 </script>
 </body>
 </html>

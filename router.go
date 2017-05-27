@@ -21,11 +21,6 @@ func adaptRouter(r *httprouter.Router) {
 	r.POST("/api/import", handleAPIImport)
 }
 
-// BodyOperations represents a body containing operations
-type BodyOperations struct {
-	Operations []BodyOperation `json:"operations"`
-}
-
 // BodyOperation represents a body containing an operation
 type BodyOperation struct {
 	Account   *Account   `json:"account"`

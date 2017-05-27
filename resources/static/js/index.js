@@ -9,6 +9,9 @@ var index = {
         document.addEventListener('astilectron-ready', function() {
             // Handle import
             document.getElementById("btn-import").onclick = index.onClickImport;
+
+            // Refresh list accounts
+            index.refreshListAccounts();
         })
     },
     onClickAdd: function(originalLength, operations) {
@@ -38,6 +41,7 @@ var index = {
 
                     // No operations left
                     if (operations.length == 0) {
+                        index.refreshListAccounts();
                         asticode.modaler.hide();
                         asticode.notifier.success(originalLength + " operation(s) imported");
                         return
@@ -73,19 +77,63 @@ var index = {
                     }
 
                     // No new operations detected
-                    var json = JSON.parse(req.responseText);
-                    if (json.operations.length == 0) {
+                    var operations = JSON.parse(req.responseText);
+                    if (operations.length == 0) {
                         asticode.notifier.info("No new operations detected");
                         return
                     }
 
                     // Set modal content
-                    index.setModalContent(json.operations.length, json.operations);
+                    index.setModalContent(operations.length, operations);
                 }
             };
             req.open('POST', '/api/import', true);
             req.send(JSON.stringify({paths: paths}));
         })
+    },
+    refreshListAccounts: function() {
+        // Send request to /api/accounts
+        const req = new XMLHttpRequest();
+        req.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE) {
+                // Process errors
+                if (req.status != 200) {
+                    asticode.notifier.error(req.responseText);
+                    return
+                }
+
+                // Loop through accounts
+                var accounts = JSON.parse(req.responseText);
+                if (typeof accounts !== "undefined" && accounts != null) {
+                    var node = document.getElementById("accounts");
+                    node.innerHTML = "";
+                    for (var i = 0; i < accounts.length; i++) {
+                        var className = "amount-negative";
+                        if (accounts[i].balance > 0) {
+                            className = "amount-positive";
+                        }
+                        node.innerHTML = node.innerHTML + `
+                        <div class="account-container">
+                            <div class="account-wrapper">
+                               <div class="account-table">
+                                    <div class="account-cell">` + accounts[i].id + `</div>
+                                    <div class="account-cell ` + className + `">` + accounts[i].balance.toFixed(0) + `€</div>
+                                    <div class="account-cell">
+                                        <a href="/templates/operations?account_id=` + accounts[i].id + `"><i class="fa fa-list"></i></a>
+                                    </div>
+                                </div>
+                                <div class="account-footer">
+                                    Last updated on ` + accounts[i].updated_at.split("T")[0] + `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    }
+                }
+            }
+        };
+        req.open('GET', '/api/accounts', true);
+        req.send(null);
     },
     setModalContent: function(originalLength, operations) {
         // Build button
