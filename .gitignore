@@ -1,6 +1,7 @@
 .idea/
 cover.*
 data.bin
+deploy.sh
 go-astibank
 test
 resources.go
