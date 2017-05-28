@@ -45,6 +45,17 @@ func (p *OperationPool) All() (os []*Operation) {
 	return
 }
 
+// Last returns the last operation
+func (p *OperationPool) Last() (o *Operation) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	if len(p.OrderedIDs) == 0 {
+		return
+	}
+	o = p.OperationsByID[p.OrderedIDs[len(p.OrderedIDs)-1]]
+	return
+}
+
 // One returns the operation for a specific id
 func (p *OperationPool) One(id int) (o *Operation, err error) {
 	p.mutex.Lock()

@@ -58,9 +58,14 @@ func handleMessageImport(w *astilectron.Window, m bootstrap.MessageIn) {
 		a = data.Accounts.Set(a)
 		a.UpdatedAt = time.Now()
 
+		// Get last operation
+		var lo = a.Operations.Last()
+
 		// Add operations
 		for _, op := range ops {
-			po = append(po, PayloadOperation{Account: a, Operation: op})
+			if lo == nil || !op.Date.Before(lo.Date) {
+				po = append(po, PayloadOperation{Account: a, Operation: op})
+			}
 		}
 	}
 
