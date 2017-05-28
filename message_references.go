@@ -43,20 +43,34 @@ var (
 
 // Categories
 var (
-	categoryBank     = "Bank"
-	categoryBread    = "Bread"
-	categoryClothes  = "Clothes"
-	categoryFood     = "Food"
-	categoryGift     = "Gift"
-	categoryHealth   = "Health"
-	categoryHouse    = "House"
-	categoryLoan     = "Loan"
-	categoryPleasure = "Pleasure"
-	categoryRent     = "Rent"
-	categoryServers  = "Servers"
-	categoryTaxes    = "Taxes"
-	categoryUnknown  = "Unknown"
-	categoryWork     = "Work"
+	categoryAmenities = "Amenities"
+	categoryBank      = "Bank"
+	categoryBread     = "Bread"
+	categoryClothes   = "Clothes"
+	categoryFood      = "Food"
+	categoryGift      = "Gift"
+	categoryHealth    = "Health"
+	categoryLoan      = "Loan"
+	categoryPleasure  = "Pleasure"
+	categoryRent      = "Rent"
+	categoryTaxes     = "Taxes"
+	categoryUnknown   = "Unknown"
+	categoryWork      = "Work"
+	categories        = []string{
+		categoryAmenities,
+		categoryBank,
+		categoryBread,
+		categoryClothes,
+		categoryFood,
+		categoryGift,
+		categoryHealth,
+		categoryLoan,
+		categoryPleasure,
+		categoryRent,
+		categoryTaxes,
+		categoryUnknown,
+		categoryWork,
+	}
 )
 
 // Mapping subject --> category
@@ -72,22 +86,22 @@ var mappingSubjectToCategory = map[string]string{
 	subjectCelio:                    categoryClothes,
 	subjectDecathlon:                categoryPleasure,
 	subjectDeliveroo:                categoryFood,
-	subjectEDF:                      categoryHouse,
+	subjectEDF:                      categoryAmenities,
 	subjectEmilia:                   categoryLoan,
 	subjectGreenWeez:                categoryBread,
 	subjectHerbierDeProvence:        categoryFood,
 	subjectLeetchi:                  categoryPleasure,
 	subjectLesPrimeurs:              categoryFood,
 	subjectLoanInsurance:            categoryLoan,
-	subjectMAAF:                     categoryHouse,
+	subjectMAAF:                     categoryAmenities,
 	subjectMonoprix:                 categoryFood,
 	subjectMolotov:                  categoryWork,
-	subjectOnline:                   categoryServers,
+	subjectOnline:                   categoryWork,
 	subjectPharmacieDivisionLeclerc: categoryHealth,
 	subjectPharmacieDuMetro:         categoryHealth,
 	subjectRATP:                     categoryWork,
 	subjectSelf:                     categoryBank,
-	subjectSFR:                      categoryHouse,
+	subjectSFR:                      categoryAmenities,
 	subjectSNCF:                     categoryPleasure,
 	subjectTaxes:                    categoryTaxes,
 	subjectTruffaut:                 categoryPleasure,
@@ -100,18 +114,18 @@ var mappingSubjectToLabel = map[string]string{
 	subjectAccountFees:       "Account fees",
 	subjectATM:               "ATM Withdrawal",
 	subjectButchery:          "Meat",
-	subjectEDF:               "Electricity",
+	subjectEDF:               "Electricity - ",
 	subjectGreenWeez:         "Flour",
 	subjectHerbierDeProvence: "Tea",
 	subjectLesPrimeurs:       "Fruits & Vegetables",
-	subjectLoanInsurance:     "Loan insurance",
+	subjectLoanInsurance:     "Loan insurance - ",
 	subjectMAAF:              "House insurance",
 	subjectMolotov:           "Salary - ",
 	subjectMonoprix:          "Processed food",
-	subjectOnline:            "Servers",
-	subjectRATP:              "Pass Navigo",
-	subjectSFR:               "Internet",
-	subjectTaxes:             "Taxes",
+	subjectOnline:            "Servers - ",
+	subjectRATP:              "Pass Navigo - ",
+	subjectSFR:               "Internet - ",
+	subjectTaxes:             "Taxes - ",
 	subjectTuaillon:          "Rent - ",
 }
 
@@ -127,24 +141,7 @@ func handleMessageReferencesList(w *astilectron.Window) {
 	defer processMessageError(w, &err)
 
 	// Send
-	if err = w.Send(bootstrap.MessageOut{Name: "references.list", Payload: PayloadReferences{
-		Categories: []string{
-			categoryBank,
-			categoryBread,
-			categoryClothes,
-			categoryFood,
-			categoryGift,
-			categoryHealth,
-			categoryHouse,
-			categoryLoan,
-			categoryPleasure,
-			categoryRent,
-			categoryServers,
-			categoryTaxes,
-			categoryUnknown,
-			categoryWork,
-		},
-	}}); err != nil {
+	if err = w.Send(bootstrap.MessageOut{Name: "references.list", Payload: PayloadReferences{Categories: categories}}); err != nil {
 		err = errors.Wrap(err, "sending message failed")
 		return
 	}

@@ -12,6 +12,8 @@ func handleMessages(w *astilectron.Window, m bootstrap.MessageIn) {
 	switch m.Name {
 	case "accounts.list":
 		handleMessageAccountsList(w)
+	case "charts.all":
+		handleMessageChartsAll(w, m)
 	case "import":
 		handleMessageImport(w, m)
 	case "operations.add":

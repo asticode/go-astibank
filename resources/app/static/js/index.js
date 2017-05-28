@@ -60,7 +60,8 @@ var index = {
                             <div class="account-cell">` + message.payload[i].id + `</div>
                             <div class="account-cell ` + className + `">` + message.payload[i].balance.toFixed(0) + `€</div>
                             <div class="account-cell">
-                                <a href="operations.html?account_id=` + message.payload[i].id + `"><i class="fa fa-list"></i></a>
+                                <a class="action" href="operations.html?account_id=` + message.payload[i].id + `"><i class="fa fa-bars"></i></a>
+                                <a class="action" href="charts.html?account_id=` + message.payload[i].id + `"><i class="fa fa-line-chart"></i></a>
                             </div>
                         </div>
                         <div class="account-footer">
