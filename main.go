@@ -46,7 +46,7 @@ func main() {
 		Debug:          *debug,
 		Homepage:       "index.html",
 		MessageHandler: handleMessages,
-		// RestoreAssets: RestoreAssets,
+		RestoreAssets:  RestoreAssets,
 		WindowOptions: &astilectron.WindowOptions{
 			BackgroundColor: astilectron.PtrStr("#333"),
 			Center:          astilectron.PtrBool(true),
