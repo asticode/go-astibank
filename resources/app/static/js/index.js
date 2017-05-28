@@ -4,6 +4,9 @@ var index = {
         asticode.loader.init();
         asticode.notifier.init();
         asticode.modaler.init();
+        asticode.modaler.onclose = function() {
+            index.sendAccountsList();
+        };
 
         // Wait for astilectron to be ready
         document.addEventListener('astilectron-ready', function() {
@@ -81,13 +84,19 @@ var index = {
         // Set operations
         index.import = {
             operations: message.payload,
-            original_length: message.payload.length,
         };
 
         // Set modal content
         index.setModalContent();
     },
-    listenOperationsAdd: function(message) {
+    listenOperationsAdd: function() {
+        asticode.notifier.success("Operation successfully added!");
+        index.nextOperation();
+    },
+    listenReferencesList: function(message) {
+        index.references = message.payload;
+    },
+    nextOperation: function() {
         // Remove first operation
         index.import.operations.shift();
 
@@ -95,15 +104,11 @@ var index = {
         if (index.import.operations.length == 0) {
             index.sendAccountsList();
             asticode.modaler.hide();
-            asticode.notifier.success(index.import.original_length + " operation(s) imported");
             return
         }
 
         // Build modal content
         index.setModalContent();
-    },
-    listenReferencesList: function(message) {
-        index.references = message.payload;
     },
     onClickAdd: function() {
         // Get values
@@ -122,6 +127,9 @@ var index = {
             index.sendImport(paths);
         })
     },
+    onClickSkip: function() {
+        index.nextOperation();
+    },
     sendAccountsList: function() {
         asticode.loader.show();
         astilectron.send({name: "accounts.list"});
@@ -139,12 +147,6 @@ var index = {
         astilectron.send({name: "references.list"});
     },
     setModalContent: function() {
-        // Build button
-        var btn = document.createElement("button");
-        btn.innerText = "Add";
-        btn.className = "btn-lg btn-success";
-        btn.onclick = index.onClickAdd;
-
         // Build content
         var html = `
         <div style="margin-bottom: 15px">
@@ -171,17 +173,9 @@ var index = {
         <div style="margin-bottom: 15px">
             <h3>Custom data</h3>
             <label>Subject:</label>
-            <select id="content-subject">`;
-        for (var i = 0; i < index.references.subjects.length; i++) {
-            var selected = "";
-            if (index.references.subjects[i] == index.import.operations[0].operation.subject) {
-                selected = " selected"
-            }
-            html += `<option value="` + index.references.subjects[i] + `"` + selected + `>` + index.references.subjects[i] + `</option>`;
-        }
-        html += `</select>
-        <label>Category:</label>
-        <select id="content-category">`;
+            <input type="text" id="content-subject" value="` + index.import.operations[0].operation.subject + `"/>
+            <label>Category:</label>
+            <select id="content-category">`;
         for (var i = 0; i < index.references.categories.length; i++) {
             var selected = "";
             if (index.references.categories[i] == index.import.operations[0].operation.category) {
@@ -191,20 +185,27 @@ var index = {
         }
         html += `</select>
             <label>Label:</label>
-            <input type="text" id="content-label" autofocus value="` + index.import.operations[0].operation.label + `"/>
+            <input type="text" id="content-label" value="` + index.import.operations[0].operation.label + `"/>
+        </div>
+        <div style="text-align: center">
+            <div style="display: inline-block">
+                <button class="btn-success" id="btn-add" onclick="index.onClickAdd()">Add</button>
+            </div>
+            <div style="display: inline-block">
+                <button class="btn-danger" onclick="index.onClickSkip()">Skip</button>
+            </div>
         </div>
         `;
         var content = document.createElement("div");
         content.innerHTML = html;
         content.style.textAlign = "left";
-        content.appendChild(btn);
 
         // Update modal
         asticode.modaler.setContent(content);
         document.getElementById('content-label').focus();
         document.getElementById('content-label').onkeypress = function(e) {
             if (e.keyCode == 13) {
-                btn.click();
+                document.getElementById("btn-add").click();
             }
         };
         asticode.modaler.show();

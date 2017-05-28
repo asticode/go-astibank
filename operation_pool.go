@@ -7,15 +7,16 @@ import (
 
 // OperationPool represents an operation pool
 type OperationPool struct {
-	OperationsByID map[string]*Operation
+	Counter        int
+	OperationsByID map[int]*Operation
 	mutex          *sync.Mutex
-	OrderedIDs     []string
+	OrderedIDs     []int
 }
 
 // newOperationPool creates a new operation pool
 func newOperationPool() *OperationPool {
 	return &OperationPool{
-		OperationsByID: make(map[string]*Operation),
+		OperationsByID: make(map[int]*Operation),
 		mutex:          &sync.Mutex{},
 	}
 }
@@ -24,6 +25,8 @@ func newOperationPool() *OperationPool {
 func (p *OperationPool) Add(op *Operation) *Operation {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+	p.Counter++
+	op.ID = p.Counter
 	if _, ok := p.OperationsByID[op.ID]; !ok {
 		p.OperationsByID[op.ID] = op
 		p.OrderedIDs = append(p.OrderedIDs, op.ID)
@@ -43,12 +46,12 @@ func (p *OperationPool) All() (os []*Operation) {
 }
 
 // One returns the operation for a specific id
-func (p *OperationPool) One(id string) (o *Operation, err error) {
+func (p *OperationPool) One(id int) (o *Operation, err error) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	var ok bool
 	if o, ok = p.OperationsByID[id]; !ok {
-		err = fmt.Errorf("Unknown operation id %s", id)
+		err = fmt.Errorf("Unknown operation id %d", id)
 		return
 	}
 	return

@@ -18,6 +18,10 @@ func handleMessages(w *astilectron.Window, m bootstrap.MessageIn) {
 		handleMessageOperationsAdd(w, m)
 	case "operations.list":
 		handleMessageOperationsList(w, m)
+	case "operations.one":
+		handleMessageOperationsOne(w, m)
+	case "operations.update":
+		handleMessageOperationsUpdate(w, m)
 	case "references.list":
 		handleMessageReferencesList(w)
 	}

@@ -58,11 +58,9 @@ func handleMessageImport(w *astilectron.Window, m bootstrap.MessageIn) {
 		a = data.Accounts.Set(a)
 		a.UpdatedAt = time.Now()
 
-		// Add new operations
+		// Add operations
 		for _, op := range ops {
-			if _, err = a.Operations.One(op.ID); err != nil {
-				po = append(po, PayloadOperation{Account: a, Operation: op})
-			}
+			po = append(po, PayloadOperation{Account: a, Operation: op})
 		}
 	}
 
@@ -154,9 +152,6 @@ func parseBankStatement(path string) (a *Account, ops []*Operation, err error) {
 		// Update account balance
 		a.Balance -= op.Amount
 
-		// Set ID
-		op.ID = fmt.Sprintf("%s.%s.%f", op.Date, op.RawLabel, op.Amount)
-
 		// Parse raw label
 		op.Subject = parseRawLabel(op.RawLabel)
 		if c, ok := mappingSubjectToCategory[op.Subject]; ok {
@@ -174,14 +169,68 @@ func parseBankStatement(path string) (a *Account, ops []*Operation, err error) {
 
 // parseRawLabel parses a raw label
 func parseRawLabel(l string) (subject string) {
-	if strings.Index(l, "RETRAIT DAB LA BANQUE POSTALE") > -1 {
-		return subjectATMBanquePostale
-	} else if strings.Index(l, "PRELEVEMENT DE EDF clients") > -1 {
+	if strings.Index(l, " RETRAIT DAB LA BANQUE POSTALE ") > -1 {
+		return subjectATM
+	} else if strings.Index(l, " EDF clients ") > -1 {
 		return subjectEDF
 	} else if strings.Index(l, " DECATHLON ") > -1 {
 		return subjectDecathlon
 	} else if strings.Index(l, " LES PRIMEURS ") > -1 {
 		return subjectLesPrimeurs
+	} else if strings.Index(l, " BOUCHERIE COUD ") > -1 {
+		return subjectButchery
+	} else if strings.Index(l, " MONOPRIX ") > -1 {
+		return subjectMonoprix
+	} else if strings.Index(l, " ECHEANCE PRET ") > -1 {
+		return subjectLoanInsurance
+	} else if strings.Index(l, " SNCF ") > -1 {
+		return subjectSNCF
+	} else if strings.Index(l, " GREENWEEZ ") > -1 {
+		return subjectGreenWeez
+	} else if strings.Index(l, " ONLINE ") > -1 {
+		return subjectOnline
+	} else if strings.Index(l, " SFR ") > -1 {
+		return subjectSFR
+	} else if strings.Index(l, " DELIVEROOFR ") > -1 {
+		return subjectDeliveroo
+	} else if strings.Index(l, " MOLOTOV ") > -1 {
+		return subjectMolotov
+	} else if strings.Index(l, " LEETCHI.CO ") > -1 {
+		return subjectLeetchi
+	} else if strings.Index(l, " TUAILLON ") > -1 {
+		return subjectTuaillon
+	} else if strings.Index(l, " AIR FRANCE ") > -1 {
+		return subjectAirFrance
+	} else if strings.Index(l, " CDISCOUNT ") > -1 {
+		return subjectCDiscount
+	} else if strings.Index(l, " RENARD QUENTIN ") > -1 {
+		return subjectSelf
+	} else if strings.Index(l, " EMILIA NAIASA IL ") > -1 {
+		return subjectEmilia
+	} else if strings.Index(l, "COTISATION TRIMESTRIELLE DE VOTRE FORMULE DE COMPTE ") > -1 {
+		return subjectAccountFees
+	} else if strings.Index(l, " RATP ") > -1 {
+		return subjectRATP
+	} else if strings.Index(l, " HERBIER DE PRO ") > -1 {
+		return subjectHerbierDeProvence
+	} else if strings.Index(l, " DIRECTION GENERAL ES FINANCES PUBL ") > -1 {
+		return subjectTaxes
+	} else if strings.Index(l, " AMAZON ") > -1 {
+		return subjectAmazon
+	} else if strings.Index(l, " AROMA-ZONE.COM ") > -1 {
+		return subjectAromaZone
+	} else if strings.Index(l, " 123fleurs ") > -1 {
+		return subject123Fleurs
+	} else if strings.Index(l, " PHARMACIE D OR ") > -1 {
+		return subjectPharmacieDivisionLeclerc
+	} else if strings.Index(l, " PHIE DU METRO ") > -1 {
+		return subjectPharmacieDuMetro
+	} else if strings.Index(l, " CELIO ") > -1 {
+		return subjectCelio
+	} else if strings.Index(l, " MAAF ASSURANCE ") > -1 {
+		return subjectMAAF
+	} else if strings.Index(l, " TRUFFAUT ") > -1 {
+		return subjectTruffaut
 	}
 	return
 }
