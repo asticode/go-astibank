@@ -25,6 +25,7 @@ func newAccountPool() *accountPool {
 func (p *accountPool) All() (as []*Account) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+	as = []*Account{}
 	for _, id := range p.orderedIDs {
 		as = append(as, p.accountsByID[id])
 	}

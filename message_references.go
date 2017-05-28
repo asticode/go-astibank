@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
-	"net/http"
-
-	"github.com/julienschmidt/httprouter"
+	"github.com/asticode/go-astilectron"
+	"github.com/asticode/go-astilectron/bootstrap"
 	"github.com/pkg/errors"
 )
 
@@ -38,20 +36,20 @@ var mappingSubjectToLabel = map[string]string{
 	subjectLesPrimeurs:      "Fruits & Vegetables",
 }
 
-// BodyReferences represents the body containing references
-type BodyReferences struct {
+// PayloadReferences represents the payload containing references
+type PayloadReferences struct {
 	Categories []string `json:"categories"`
 	Subjects   []string `json:"subjects"`
 }
 
-// handleAPIListReferences handles the /api/references GET request
-func handleAPIListReferences(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// handleMessageReferencesList handles the "references.list" message
+func handleMessageReferencesList(w *astilectron.Window) {
 	// Process errors
 	var err error
-	defer processErrors(rw, &err)
+	defer processMessageError(w, &err)
 
-	// Write
-	if err = json.NewEncoder(rw).Encode(BodyReferences{
+	// Send
+	if err = w.Send(bootstrap.MessageOut{Name: "references.list", Payload: PayloadReferences{
 		Categories: []string{
 			categoryElectricity,
 			categoryFood,
@@ -63,8 +61,8 @@ func handleAPIListReferences(rw http.ResponseWriter, r *http.Request, p httprout
 			subjectEDF,
 			subjectLesPrimeurs,
 		},
-	}); err != nil {
-		err = errors.Wrap(err, "writing output failed")
+	}}); err != nil {
+		err = errors.Wrap(err, "sending message failed")
 		return
 	}
 }

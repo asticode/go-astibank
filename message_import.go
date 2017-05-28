@@ -3,37 +3,49 @@ package main
 import (
 	"bytes"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"path/filepath"
 
+	"encoding/json"
+
+	"github.com/asticode/go-astilectron"
+	"github.com/asticode/go-astilectron/bootstrap"
 	"github.com/asticode/go-astilog"
-	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 )
 
-// handleAPIImport handles the /api/import POST request
-func handleAPIImport(rw http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// Vars
+var (
+	bytesLineSeparator = []byte("\r\n")
+)
+
+// PayloadOperation represents a payload containing an operation and its account
+type PayloadOperation struct {
+	Account   *Account   `json:"account"`
+	Operation *Operation `json:"operation"`
+}
+
+// handleMessageImport handles the "import" message
+func handleMessageImport(w *astilectron.Window, m bootstrap.MessageIn) {
 	// Process errors
 	var err error
-	defer processErrors(rw, &err)
+	defer processMessageError(w, &err)
 
-	// Decode input
-	var bp BodyPaths
-	if err = json.NewDecoder(r.Body).Decode(&bp); err != nil {
-		err = errors.Wrap(err, "decoding input failed")
+	// Unmarshal
+	var ps []string
+	if err = json.Unmarshal(m.Payload, &ps); err != nil {
+		err = errors.Wrapf(err, "unmarshaling %s failed", m.Payload)
 		return
 	}
 
 	// Loop in paths
-	var bo = []BodyOperation{}
-	for _, p := range bp.Paths {
+	var po = []PayloadOperation{}
+	for _, p := range ps {
 		// Parse bank statement
 		var a *Account
 		var ops []*Operation
@@ -49,14 +61,14 @@ func handleAPIImport(rw http.ResponseWriter, r *http.Request, p httprouter.Param
 		// Add new operations
 		for _, op := range ops {
 			if _, err = a.Operations.One(op.ID); err != nil {
-				bo = append(bo, BodyOperation{Account: a, Operation: op})
+				po = append(po, PayloadOperation{Account: a, Operation: op})
 			}
 		}
 	}
 
-	// Write
-	if err = json.NewEncoder(rw).Encode(bo); err != nil {
-		err = errors.Wrap(err, "writing output failed")
+	// Send
+	if err = w.Send(bootstrap.MessageOut{Name: "import", Payload: po}); err != nil {
+		err = errors.Wrap(err, "sending message failed")
 		return
 	}
 }

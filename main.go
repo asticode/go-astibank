@@ -40,12 +40,12 @@ func main() {
 
 	// Run bootstrap
 	if err = bootstrap.Run(bootstrap.Options{
-		AdaptRouter: adaptRouter,
 		AstilectronOptions: astilectron.Options{
 			AppName: "Astibank",
 		},
-		Debug:    *debug,
-		Homepage: "/templates/index",
+		Debug:          *debug,
+		Homepage:       "index.html",
+		MessageHandler: handleMessages,
 		// RestoreAssets: RestoreAssets,
 		WindowOptions: &astilectron.WindowOptions{
 			BackgroundColor: astilectron.PtrStr("#333"),

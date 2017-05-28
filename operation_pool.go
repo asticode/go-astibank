@@ -35,6 +35,7 @@ func (p *OperationPool) Add(op *Operation) *Operation {
 func (p *OperationPool) All() (os []*Operation) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+	os = []*Operation{}
 	for _, id := range p.OrderedIDs {
 		os = append(os, p.OperationsByID[id])
 	}
