@@ -102,26 +102,14 @@ func handleDoubleClicked(_ astilectron.Event) (deleteListener bool) {
 	// Init window
 	if w, err = a.NewWindow(filepath.Join(a.Paths().DataDirectory(), "resources", "app", "index.html"), &astilectron.WindowOptions{
 		BackgroundColor: astilectron.PtrStr("#333"),
+		Height:          astilectron.PtrInt(600),
 		HideOnClose:     astilectron.PtrBool(true),
-		Show:            astilectron.PtrBool(false),
 		Title:           astilectron.PtrStr(AppName),
+		Width:           astilectron.PtrInt(600),
 	}); err != nil {
 		astilog.Error(errors.Wrap(err, "main: initializing window failed"))
 		return
 	}
-
-	// Maximize on init
-	w.On(astilectron.EventNameWindowEventDidFinishLoad, func(_ astilectron.Event) (deleteListener bool) {
-		if err = w.Maximize(); err != nil {
-			astilog.Error(errors.Wrap(err, "main: maximizing window failed"))
-			return
-		}
-		if err = w.Show(); err != nil {
-			astilog.Error(errors.Wrap(err, "main: showing window failed"))
-			return
-		}
-		return true
-	})
 
 	// Create window
 	if err = w.Create(); err != nil {
