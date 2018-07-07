@@ -1,3 +1,7 @@
 .idea/
+astibank
 bind_*
+data.json
+resources/checksums.json
+vendor
 windows.syso

@@ -19,6 +19,13 @@ type pdfStatement struct {
 	operations []pdfOperation
 }
 
+type pdfOperation struct {
+	credit      float64
+	date        time.Time
+	debit       float64
+	description []string
+}
+
 type pdfParser struct{}
 
 func newPDFParser() *pdfParser {
@@ -96,18 +103,30 @@ func (p *pdfParser) parse(path string) (s pdfStatement, err error) {
 		}
 	}
 
-	// Retrieve old balance and global credit/debit
+	// Retrieve misc information
+	var d, dn time.Time
 	for idxOp := 0; idxOp < len(s.operations); idxOp++ {
 		o := s.operations[idxOp]
 		if s.oldBalance == 0 && len(o.description) == 1 && strings.HasPrefix(o.description[0], "Ancien solde au ") {
 			s.oldBalance = o.credit - o.debit
 			s.operations = append(s.operations[:idxOp], s.operations[idxOp+1:]...)
 			idxOp--
+			if d, err = time.Parse("02/01/2006", strings.TrimPrefix(o.description[0], "Ancien solde au ")); err != nil {
+				err = errors.Wrapf(err, "main: parsing old balance date failed")
+				return
+			}
+			dn = d.AddDate(0, 1, 0)
 		} else if (s.credit == 0 || s.debit == 0) && len(o.description) == 1 && o.description[0] == "Total des opérations" {
 			s.credit = o.credit
 			s.debit = o.debit
 			s.operations = append(s.operations[:idxOp], s.operations[idxOp+1:]...)
 			idxOp--
+		} else {
+			if o.date.Month() == d.Month() {
+				s.operations[idxOp].date = o.date.AddDate(d.Year(), 0, 0)
+			} else if o.date.Month() == dn.Month() {
+				s.operations[idxOp].date = o.date.AddDate(dn.Year(), 0, 0)
+			}
 		}
 	}
 	return
@@ -146,13 +165,6 @@ func (l pdfLine) concat() (s string) {
 		s += t.S
 	}
 	return
-}
-
-type pdfOperation struct {
-	credit      float64
-	date        time.Time
-	debit       float64
-	description []string
 }
 
 func (l pdfLine) parse(h *pdfHeader) (o pdfOperation) {

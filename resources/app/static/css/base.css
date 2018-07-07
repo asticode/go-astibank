@@ -1,0 +1,48 @@
+html, body {
+    color: white;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.table {
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+
+.row {
+    display: table-row;
+    height: 100%;
+    width: 100%;
+}
+
+.cell {
+    display: table-cell;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    width: 100%;
+}
+
+.cell > table {
+    margin: auto;
+}
+
+.fa {
+    margin-right: 2px;
+}
+
+.success {
+    background-image: linear-gradient(to bottom,#5cb85c 0,#419641 100%);
+    background-repeat: repeat-x;
+    border-color: #3e8f3e;
+}
+
+.index-panel {
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 20px;
+    width: 115px;
+}
